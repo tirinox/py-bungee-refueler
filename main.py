@@ -31,268 +31,12 @@ def get_native_symbol(chain: str) -> str:
     return symbol_mapping.get(chain, '')
 
 
-def min_gas_amount(parent_chain, destination_chain) -> tuple:
-    # From Ethereum
-    if (parent_chain == 'ETH') and (destination_chain == 'OPT'):
-        return min_eth_to_opt, max_eth_to_opt
-
-    if (parent_chain == 'ETH') and (destination_chain == 'BSC'):
-        return min_eth_to_bsc, max_eth_to_bsc
-
-    if (parent_chain == 'ETH') and (destination_chain == 'GNO'):
-        return min_eth_to_gno, max_eth_to_gno
-
-    if (parent_chain == 'ETH') and (destination_chain == 'MATIC'):
-        return min_eth_to_matic, max_eth_to_matic
-
-    if (parent_chain == 'ETH') and (destination_chain == 'ERA'):
-        return min_eth_to_era, max_eth_to_era
-
-    if (parent_chain == 'ETH') and (destination_chain == 'ZKEVM'):
-        return min_eth_to_zkevm, max_eth_to_zkevm
-
-    if (parent_chain == 'ETH') and (destination_chain == 'ARB'):
-        return min_eth_to_arb, max_eth_to_arb
-
-    if (parent_chain == 'ETH') and (destination_chain == 'AVAX'):
-        return min_eth_to_avax, max_eth_to_avax
-
-    if (parent_chain == 'ETH') and (destination_chain == 'AUR'):
-        return min_eth_to_aur, max_eth_to_aur
-
-    if (parent_chain == 'ETH') and (destination_chain == 'FTM'):
-        return min_eth_to_ftm, max_eth_to_ftm
-
-    # From Optimism
-    if (parent_chain == 'OPT') and (destination_chain == 'BSC'):
-        return min_opt_to_bsc, max_opt_to_bsc
-
-    if (parent_chain == 'OPT') and (destination_chain == 'GNO'):
-        return min_opt_to_gno, max_opt_to_gno
-
-    if (parent_chain == 'OPT') and (destination_chain == 'MATIC'):
-        return min_opt_to_matic, max_opt_to_matic
-
-    if (parent_chain == 'OPT') and (destination_chain == 'ERA'):
-        return min_opt_to_era, max_opt_to_era
-
-    if (parent_chain == 'OPT') and (destination_chain == 'ZKEVM'):
-        return min_opt_to_zkevm
-
-    if (parent_chain == 'OPT') and (destination_chain == 'ARB'):
-        return min_opt_to_arb, max_opt_to_arb
-
-    if (parent_chain == 'OPT') and (destination_chain == 'AVAX'):
-        return min_opt_to_avax, max_opt_to_avax
-
-    if (parent_chain == 'OPT') and (destination_chain == 'AUR'):
-        return min_opt_to_aur, max_opt_to_aur
-
-    if (parent_chain == 'OPT') and (destination_chain == 'FTM'):
-        return min_opt_to_ftm, max_opt_to_ftm
-
-    # From BNB Chain
-    if (parent_chain == 'BSC') and (destination_chain == 'OPT'):
-        return min_bsc_to_opt, max_bsc_to_opt
-
-    if (parent_chain == 'BSC') and (destination_chain == 'GNO'):
-        return min_bsc_to_gno, max_bsc_to_gno
-
-    if (parent_chain == 'BSC') and (destination_chain == 'MATIC'):
-        return min_bsc_to_matic, max_bsc_to_matic
-
-    if (parent_chain == 'BSC') and (destination_chain == 'ERA'):
-        return min_bsc_to_era, max_bsc_to_era
-
-    if (parent_chain == 'BSC') and (destination_chain == 'ZKEVM'):
-        return min_bsc_to_zkevm, max_bsc_to_zkevm
-
-    if (parent_chain == 'BSC') and (destination_chain == 'ARB'):
-        return min_bsc_to_arb, max_bsc_to_arb
-
-    if (parent_chain == 'BSC') and (destination_chain == 'AVAX'):
-        return min_bsc_to_avax, max_bsc_to_avax
-
-    if (parent_chain == 'BSC') and (destination_chain == 'AUR'):
-        return min_bsc_to_aur, max_bsc_to_aur
-
-    if (parent_chain == 'BSC') and (destination_chain == 'FTM'):
-        return min_bsc_to_ftm, max_bsc_to_ftm
-
-    # From Gnosis
-    if (parent_chain == 'GNO') and (destination_chain == 'OPT'):
-        return min_gno_to_opt, max_gno_to_opt
-
-    if (parent_chain == 'GNO') and (destination_chain == 'BSC'):
-        return min_gno_to_bsc, max_gno_to_bsc
-
-    if (parent_chain == 'GNO') and (destination_chain == 'MATIC'):
-        return min_gno_to_matic, max_gno_to_matic
-
-    if (parent_chain == 'GNO') and (destination_chain == 'ERA'):
-        return min_gno_to_era, max_gno_to_era
-
-    if (parent_chain == 'GNO') and (destination_chain == 'ZKEVM'):
-        return min_gno_to_zkevm, max_gno_to_zkevm
-
-    if (parent_chain == 'GNO') and (destination_chain == 'ARB'):
-        return min_gno_to_arb, max_gno_to_arb
-
-    if (parent_chain == 'GNO') and (destination_chain == 'AVAX'):
-        return min_gno_to_avax, max_gno_to_avax
-
-    if (parent_chain == 'GNO') and (destination_chain == 'AUR'):
-        return min_gno_to_aur, max_gno_to_aur
-
-    if (parent_chain == 'GNO') and (destination_chain == 'FTM'):
-        return min_gno_to_ftm, max_gno_to_ftm
-
-    # From Polygon
-    if (parent_chain == 'MATIC') and (destination_chain == 'OPT'):
-        return min_matic_to_opt, max_matic_to_opt
-
-    if (parent_chain == 'MATIC') and (destination_chain == 'GNO'):
-        return min_matic_to_gno, max_matic_to_gno
-
-    if (parent_chain == 'MATIC') and (destination_chain == 'BSC'):
-        return min_matic_to_bsc, max_matic_to_bsc
-
-    if (parent_chain == 'MATIC') and (destination_chain == 'ERA'):
-        return min_matic_to_era, max_matic_to_era
-
-    if (parent_chain == 'MATIC') and (destination_chain == 'ZKEVM'):
-        return min_matic_to_zkevm, max_matic_to_zkevm
-
-    if (parent_chain == 'MATIC') and (destination_chain == 'ARB'):
-        return min_matic_to_arb, max_matic_to_arb
-
-    if (parent_chain == 'MATIC') and (destination_chain == 'AVAX'):
-        return min_matic_to_avax, max_matic_to_avax
-
-    if (parent_chain == 'MATIC') and (destination_chain == 'AUR'):
-        return min_matic_to_aur, max_matic_to_aur
-
-    if (parent_chain == 'MATIC') and (destination_chain == 'FTM'):
-        return min_matic_to_ftm, max_matic_to_ftm
-
-    # From Arbitrum
-    if (parent_chain == 'ARB') and (destination_chain == 'OPT'):
-        return min_arb_to_opt, max_arb_to_opt
-
-    if (parent_chain == 'ARB') and (destination_chain == 'BSC'):
-        return min_arb_to_bsc, max_arb_to_bsc
-
-    if (parent_chain == 'ARB') and (destination_chain == 'GNO'):
-        return min_arb_to_gno, max_arb_to_gno
-
-    if (parent_chain == 'ARB') and (destination_chain == 'MATIC'):
-        return min_arb_to_matic, max_arb_to_matic
-
-    if (parent_chain == 'ARB') and (destination_chain == 'ERA'):
-        return min_arb_to_era, max_arb_to_era
-
-    if (parent_chain == 'ARB') and (destination_chain == 'ZKEVM'):
-        return min_arb_to_zkevm, max_arb_to_zkevm
-
-    if (parent_chain == 'ARB') and (destination_chain == 'AVAX'):
-        return min_arb_to_avax, max_arb_to_avax
-
-    if (parent_chain == 'ARB') and (destination_chain == 'AUR'):
-        return min_arb_to_aur, max_arb_to_aur
-
-    if (parent_chain == 'ARB') and (destination_chain == 'FTM'):
-        return min_arb_to_ftm, max_arb_to_ftm
-
-        # From AVAX
-    if (parent_chain == 'AVAX') and (destination_chain == 'OPT'):
-        return min_avax_to_opt, max_avax_to_opt
-
-    if (parent_chain == 'AVAX') and (destination_chain == 'BSC'):
-        return min_avax_to_bsc, max_avax_to_bsc
-
-    if (parent_chain == 'AVAX') and (destination_chain == 'GNO'):
-        return min_avax_to_gno, max_avax_to_gno
-
-    if (parent_chain == 'AVAX') and (destination_chain == 'MATIC'):
-        return min_avax_to_matic, max_avax_to_matic
-
-    if (parent_chain == 'AVAX') and (destination_chain == 'ERA'):
-        return min_avax_to_era, max_avax_to_era
-
-    if (parent_chain == 'AVAX') and (destination_chain == 'ZKEVM'):
-        return min_avax_to_zkevm, max_avax_to_zkevm
-
-    if (parent_chain == 'AVAX') and (destination_chain == 'ARB'):
-        return min_avax_to_arb, max_avax_to_arb
-
-    if (parent_chain == 'AVAX') and (destination_chain == 'AUR'):
-        return min_avax_to_aur, max_avax_to_aur
-
-    if (parent_chain == 'AVAX') and (destination_chain == 'FTM'):
-        return min_avax_to_aur, max_avax_to_aur
-
-    # From Aurora
-    if (parent_chain == 'AUR') and (destination_chain == 'OPT'):
-        return min_aur_to_opt, max_aur_to_opt
-
-    if (parent_chain == 'AUR') and (destination_chain == 'BSC'):
-        return min_aur_to_bsc, max_aur_to_bsc
-
-    if (parent_chain == 'AUR') and (destination_chain == 'GNO'):
-        return min_aur_to_gno, max_aur_to_gno
-
-    if (parent_chain == 'AUR') and (destination_chain == 'MATIC'):
-        return min_aur_to_matic, max_aur_to_matic
-
-    if (parent_chain == 'AUR') and (destination_chain == 'ERA'):
-        return min_aur_to_era, max_aur_to_era
-
-    if (parent_chain == 'AUR') and (destination_chain == 'ZKEVM'):
-        return min_aur_to_zkevm, max_aur_to_zkevm
-
-    if (parent_chain == 'AUR') and (destination_chain == 'ARB'):
-        return min_aur_to_arb, max_aur_to_arb
-
-    if (parent_chain == 'AUR') and (destination_chain == 'AVAX'):
-        return min_aur_to_avax, max_aur_to_avax
-
-    if (parent_chain == 'AUR') and (destination_chain == 'FTM'):
-        return min_aur_to_ftm, max_aur_to_ftm
-
-    # From Fantom
-    if (parent_chain == 'FTM') and (destination_chain == 'OPT'):
-        return min_opt_to_ftm, max_opt_to_ftm
-    if (parent_chain == 'FTM') and (destination_chain == 'BSC'):
-        return min_ftm_to_bsc, max_ftm_to_bsc
-
-    if (parent_chain == 'FTM') and (destination_chain == 'GNO'):
-        return min_ftm_to_gno, max_ftm_to_gno
-
-    if (parent_chain == 'FTM') and (destination_chain == 'MATIC'):
-        return min_ftm_to_matic, max_ftm_to_matic
-
-    if (parent_chain == 'FTM') and (destination_chain == 'ERA'):
-        return min_ftm_to_era, max_ftm_to_era
-
-    if (parent_chain == 'FTM') and (destination_chain == 'ZKEVM'):
-        return min_ftm_to_zkevm, max_ftm_to_zkevm
-
-    if (parent_chain == 'FTM') and (destination_chain == 'ARB'):
-        return min_ftm_to_arb, max_ftm_to_arb
-
-    if (parent_chain == 'FTM') and (destination_chain == 'AVAX'):
-        return min_ftm_to_avax, max_ftm_to_avax
-
-    if (parent_chain == 'FTM') and (destination_chain == 'AUR'):
-        return min_ftm_to_aur, max_ftm_to_aur
-
-
-def calculate_gas_price(private_key, tx: dict, parent_chain, send_amount):
+def calculate_gas_price(rpc, private_key, dest_chain_key, send_amount):
     w3 = Web3(Web3.HTTPProvider(rpc))
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
     address = Web3.to_checksum_address(w3.eth.account.from_key(private_key).address)
     gas_price = w3.to_wei(str(w3.eth.gas_price), 'wei')
-    gas_limit = get_gas_limit(parent_chain)
+    gas_limit = get_gas_limit(dest_chain_key)
     nonce = w3.eth.get_transaction_count(address)
     tx = {
         'nonce': nonce,
@@ -307,28 +51,26 @@ def calculate_gas_price(private_key, tx: dict, parent_chain, send_amount):
     return tx
 
 
-def send_tx(w3, private_key, parent_chain, send_amount, destination_chain_id, destination_chain, tx_explorer):
+def send_tx(w3, private_key,
+            dest_chain_key,
+            send_amount,
+            destination_chain_id, destination_chain, tx_explorer, rpc,
+            dest_tx_explorer):
     # Function: depositNativeToken(uint256 destinationChainId,address _to)
 
     address = None
     try:
         address = Web3.to_checksum_address(w3.eth.account.from_key(private_key).address)
         gas_price = w3.to_wei(str(w3.eth.gas_price), 'wei')
-        gas_limit = get_gas_limit(parent_chain)
+        gas_limit = get_gas_limit(dest_chain_key)
         nonce = w3.eth.get_transaction_count(address)
-        # Prepare the transaction data
-        tx_data = {
-            # 'from': address,
-            'nonce': nonce,
-            'gas': gas_limit,
-            'gasPrice': gas_price,
-            'value': w3.to_wei(send_amount, 'ether')
-        }
+
         # recalculate gas
-        tx_data = calculate_gas_price(private_key, tx_data, parent_chain, send_amount)
+        tx_data = calculate_gas_price(rpc, private_key, dest_chain_key, send_amount)
         if True:  # tx_type == 1:
-            transaction = contract_refuel.functions.depositNativeToken(destination_chain_id, address).build_transaction(
-                tx_data)
+            transaction = contract_refuel.functions \
+                .depositNativeToken(destination_chain_id, address) \
+                .build_transaction(tx_data)
 
             # Sign the transaction with the receiver's private key
             signed_txn = w3.eth.account.sign_transaction(transaction, private_key=private_key)
@@ -346,7 +88,7 @@ def send_tx(w3, private_key, parent_chain, send_amount, destination_chain_id, de
                 logger.info(f'Refueling from {address} | {tx_explorer}tx/{tx_hash}')
                 logger.info(
                     f'Waiting txn for destination chain ({destination_chain}) '
-                    f'{dist_tx_explorer}address/{address}/#internaltx')
+                    f'{dest_tx_explorer}address/{address}/#internaltx')
             else:
                 raise ValueError(f"Refueling from {address} failed with receipt status {receipt['status']}")
 
@@ -373,19 +115,21 @@ def main():
     print('8. Fantom')
     print('9. Avalanche C-Chain(AVAX)')
     print('10. Aurora(AUR)')
-    parent_chain = input('Input short name of chain(ETH,ARB etc.): ').upper()
-    parent_chain = parent_chain.upper()
+    dest_chain_key = input('Input short name of chain(ETH,ARB etc.): ').upper()
 
-    global dist_tx_explorer, contract_refuel
+    source_chain = CHAIN_CONFIG_MAP.get(dest_chain_key)
 
-    source_chain = CHAIN_CONFIG_MAP.get(parent_chain)
+    print(f'{dest_chain_key} selected like origin chain')
 
-    print(f'{parent_chain} selected like origin chain')
+    dest_chain_desc = None
+    gas_amount = None
 
     destination_chain_id = source_chain.chain_id
     while destination_chain_id == source_chain.chain_id:
-        destination_chain = input(f'Select target chain (ETH and {parent_chain} can not be select): ')
+        destination_chain = input(f'Select target chain (ETH and {dest_chain_key} can not be select): ')
         destination_chain = destination_chain.upper()
+
+        dest_chain_desc = CHAIN_CONFIG_MAP.get(destination_chain)
 
         if destination_chain == source_chain.chain_id:
             print(f'origin chain {destination_chain} can not be select like destination chain')
@@ -393,60 +137,16 @@ def main():
         elif destination_chain == 'ETH':
             print(f'{destination_chain} can not be select like destination chain')
 
-        elif destination_chain == 'OPT':
-            destination_chain_id = 10
-            gas_amount = min_gas_amount(parent_chain, destination_chain)
-            dist_tx_explorer = EXP_OPT
+        elif dest_chain_desc:
+            destination_chain_id = dest_chain_desc.chain_id
+            gas_amount = min_gas_amount(dest_chain_key, destination_chain)
+            break
 
-        elif destination_chain == 'BSC':
-            destination_chain_id = 56
-            gas_amount = min_gas_amount(parent_chain, destination_chain)
-            dist_tx_explorer = EXP_BSC
-
-        elif destination_chain == 'GNO':
-            destination_chain_id = 100
-            gas_amount = min_gas_amount(parent_chain, destination_chain)
-            dist_tx_explorer = EXP_GNO
-
-        elif destination_chain == 'MATIC':
-            destination_chain_id = 137
-            gas_amount = min_gas_amount(parent_chain, destination_chain)
-            dist_tx_explorer = EXP_MATIC
-
-        elif destination_chain == 'ERA':
-            destination_chain_id = 324
-            gas_amount = min_gas_amount(parent_chain, destination_chain)
-            dist_tx_explorer = EXP_ERA
-
-        elif destination_chain == 'ZKEVM':
-            destination_chain_id = 1101
-            gas_amount = min_gas_amount(parent_chain, destination_chain)
-            dist_tx_explorer = EXP_ZKEVM
-
-        elif destination_chain == 'ARB':
-            destination_chain_id = 42161
-            gas_amount = min_gas_amount(parent_chain, destination_chain)
-            dist_tx_explorer = EXP_ARB
-
-        elif destination_chain == 'AVAX':
-            destination_chain_id = 43114
-            gas_amount = min_gas_amount(parent_chain, destination_chain)
-            dist_tx_explorer = EXP_AVAX
-
-        elif destination_chain == 'AUR':
-            destination_chain_id = 1313161554
-            gas_amount = min_gas_amount(parent_chain, destination_chain)
-            dist_tx_explorer = EXP_AUR
-
-        elif destination_chain == 'FTM':
-            destination_chain_id = 250
-            gas_amount = min_gas_amount(parent_chain, destination_chain)
-            dist_tx_explorer = EXP_AUR
         else:
             logger.error(f'Chain {destination_chain} not found')
             return
 
-    gas_token = get_native_symbol(parent_chain)
+    gas_token = get_native_symbol(dest_chain_key)
     print(f"Minimum amount for send = {gas_amount[0]} {gas_token} + 10%")
     print(f"Maximum amount for send = {gas_amount[1]} {gas_token} - 10%")
 
@@ -474,7 +174,7 @@ def main():
             send_amount = float(amount)
             break
 
-    print(f'Starting send Gas from {parent_chain} to {source_chain.destination_chain}')
+    print(f'Starting send Gas from {dest_chain_key} to {source_chain.destination_chain}')
     print(f"{amount} {gas_token} will be send from all your addressess")
     w3 = Web3(Web3.HTTPProvider(source_chain.rpc))
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
@@ -482,6 +182,8 @@ def main():
     # Loads ABI for contracts
     with open('ABI/socket.json', 'r', encoding='utf-8-sig') as file:
         SOCKET_ABI = file.read().strip().replace('\n', '').replace(' ', '')
+
+    global contract_refuel
     contract_refuel = w3.eth.contract(address=Web3.to_checksum_address(source_chain.contract),
                                       abi=SOCKET_ABI)
 
@@ -492,19 +194,9 @@ def main():
     logger.info(f'Loaded {num_wallets} wallets')
 
     for private_key in private_keys:
-        send_tx(w3, private_key, parent_chain, send_amount, destination_chain_id,
-                source_chain.destination_chain, source_chain.tx_explorer)
-
-    # processed_addresses = 0
-    # while processed_addresses < num_wallets:
-    #     with Pool(processes=len(private_keys)) as executor:
-    #         args = [
-    #             (private_key, parent_chain, send_amount, destination_chain_id)
-    #             for private_key in private_keys
-    #         ]
-    #         executor.map(send_tx, args)
-    #     processed_addresses += num_wallets - processed_addresses
-    #
+        send_tx(w3, private_key, dest_chain_key, send_amount, destination_chain_id,
+                source_chain.destination_chain, source_chain.tx_explorer,
+                source_chain.rpc, dest_chain_desc.tx_explorer)
 
 
 if __name__ == '__main__':

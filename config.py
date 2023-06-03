@@ -4,6 +4,15 @@ from dotenv import load_dotenv
 
 from refuel import *
 
+
+class ChainConfig(NamedTuple):
+    chain_code: str
+    chain_id: int
+    rpc: str
+    contract: str
+    tx_explorer: str
+
+
 load_dotenv()
 BUNGEE_ETH_ROUTER = os.getenv('BUNGEE_ETH_ROUTER')
 BUNGEE_OPT_ROUTER = os.getenv('BUNGEE_OPT_ROUTER')
@@ -290,23 +299,272 @@ max_aur_to_ftm = get_max_send_amount('Aurora', 250)
 max_gno_to_ftm = get_max_send_amount('Gnosis', 250)
 
 
-class ChainConfig(NamedTuple):
-    chain_id: int
-    rpc: str
-    contract: str
-    tx_explorer: str
+def min_gas_amount(parent_chain, destination_chain) -> tuple:
+    # From Ethereum
+    if (parent_chain == 'ETH') and (destination_chain == 'OPT'):
+        return min_eth_to_opt, max_eth_to_opt
+
+    if (parent_chain == 'ETH') and (destination_chain == 'BSC'):
+        return min_eth_to_bsc, max_eth_to_bsc
+
+    if (parent_chain == 'ETH') and (destination_chain == 'GNO'):
+        return min_eth_to_gno, max_eth_to_gno
+
+    if (parent_chain == 'ETH') and (destination_chain == 'MATIC'):
+        return min_eth_to_matic, max_eth_to_matic
+
+    if (parent_chain == 'ETH') and (destination_chain == 'ERA'):
+        return min_eth_to_era, max_eth_to_era
+
+    if (parent_chain == 'ETH') and (destination_chain == 'ZKEVM'):
+        return min_eth_to_zkevm, max_eth_to_zkevm
+
+    if (parent_chain == 'ETH') and (destination_chain == 'ARB'):
+        return min_eth_to_arb, max_eth_to_arb
+
+    if (parent_chain == 'ETH') and (destination_chain == 'AVAX'):
+        return min_eth_to_avax, max_eth_to_avax
+
+    if (parent_chain == 'ETH') and (destination_chain == 'AUR'):
+        return min_eth_to_aur, max_eth_to_aur
+
+    if (parent_chain == 'ETH') and (destination_chain == 'FTM'):
+        return min_eth_to_ftm, max_eth_to_ftm
+
+    # From Optimism
+    if (parent_chain == 'OPT') and (destination_chain == 'BSC'):
+        return min_opt_to_bsc, max_opt_to_bsc
+
+    if (parent_chain == 'OPT') and (destination_chain == 'GNO'):
+        return min_opt_to_gno, max_opt_to_gno
+
+    if (parent_chain == 'OPT') and (destination_chain == 'MATIC'):
+        return min_opt_to_matic, max_opt_to_matic
+
+    if (parent_chain == 'OPT') and (destination_chain == 'ERA'):
+        return min_opt_to_era, max_opt_to_era
+
+    if (parent_chain == 'OPT') and (destination_chain == 'ZKEVM'):
+        return min_opt_to_zkevm
+
+    if (parent_chain == 'OPT') and (destination_chain == 'ARB'):
+        return min_opt_to_arb, max_opt_to_arb
+
+    if (parent_chain == 'OPT') and (destination_chain == 'AVAX'):
+        return min_opt_to_avax, max_opt_to_avax
+
+    if (parent_chain == 'OPT') and (destination_chain == 'AUR'):
+        return min_opt_to_aur, max_opt_to_aur
+
+    if (parent_chain == 'OPT') and (destination_chain == 'FTM'):
+        return min_opt_to_ftm, max_opt_to_ftm
+
+    # From BNB Chain
+    if (parent_chain == 'BSC') and (destination_chain == 'OPT'):
+        return min_bsc_to_opt, max_bsc_to_opt
+
+    if (parent_chain == 'BSC') and (destination_chain == 'GNO'):
+        return min_bsc_to_gno, max_bsc_to_gno
+
+    if (parent_chain == 'BSC') and (destination_chain == 'MATIC'):
+        return min_bsc_to_matic, max_bsc_to_matic
+
+    if (parent_chain == 'BSC') and (destination_chain == 'ERA'):
+        return min_bsc_to_era, max_bsc_to_era
+
+    if (parent_chain == 'BSC') and (destination_chain == 'ZKEVM'):
+        return min_bsc_to_zkevm, max_bsc_to_zkevm
+
+    if (parent_chain == 'BSC') and (destination_chain == 'ARB'):
+        return min_bsc_to_arb, max_bsc_to_arb
+
+    if (parent_chain == 'BSC') and (destination_chain == 'AVAX'):
+        return min_bsc_to_avax, max_bsc_to_avax
+
+    if (parent_chain == 'BSC') and (destination_chain == 'AUR'):
+        return min_bsc_to_aur, max_bsc_to_aur
+
+    if (parent_chain == 'BSC') and (destination_chain == 'FTM'):
+        return min_bsc_to_ftm, max_bsc_to_ftm
+
+    # From Gnosis
+    if (parent_chain == 'GNO') and (destination_chain == 'OPT'):
+        return min_gno_to_opt, max_gno_to_opt
+
+    if (parent_chain == 'GNO') and (destination_chain == 'BSC'):
+        return min_gno_to_bsc, max_gno_to_bsc
+
+    if (parent_chain == 'GNO') and (destination_chain == 'MATIC'):
+        return min_gno_to_matic, max_gno_to_matic
+
+    if (parent_chain == 'GNO') and (destination_chain == 'ERA'):
+        return min_gno_to_era, max_gno_to_era
+
+    if (parent_chain == 'GNO') and (destination_chain == 'ZKEVM'):
+        return min_gno_to_zkevm, max_gno_to_zkevm
+
+    if (parent_chain == 'GNO') and (destination_chain == 'ARB'):
+        return min_gno_to_arb, max_gno_to_arb
+
+    if (parent_chain == 'GNO') and (destination_chain == 'AVAX'):
+        return min_gno_to_avax, max_gno_to_avax
+
+    if (parent_chain == 'GNO') and (destination_chain == 'AUR'):
+        return min_gno_to_aur, max_gno_to_aur
+
+    if (parent_chain == 'GNO') and (destination_chain == 'FTM'):
+        return min_gno_to_ftm, max_gno_to_ftm
+
+    # From Polygon
+    if (parent_chain == 'MATIC') and (destination_chain == 'OPT'):
+        return min_matic_to_opt, max_matic_to_opt
+
+    if (parent_chain == 'MATIC') and (destination_chain == 'GNO'):
+        return min_matic_to_gno, max_matic_to_gno
+
+    if (parent_chain == 'MATIC') and (destination_chain == 'BSC'):
+        return min_matic_to_bsc, max_matic_to_bsc
+
+    if (parent_chain == 'MATIC') and (destination_chain == 'ERA'):
+        return min_matic_to_era, max_matic_to_era
+
+    if (parent_chain == 'MATIC') and (destination_chain == 'ZKEVM'):
+        return min_matic_to_zkevm, max_matic_to_zkevm
+
+    if (parent_chain == 'MATIC') and (destination_chain == 'ARB'):
+        return min_matic_to_arb, max_matic_to_arb
+
+    if (parent_chain == 'MATIC') and (destination_chain == 'AVAX'):
+        return min_matic_to_avax, max_matic_to_avax
+
+    if (parent_chain == 'MATIC') and (destination_chain == 'AUR'):
+        return min_matic_to_aur, max_matic_to_aur
+
+    if (parent_chain == 'MATIC') and (destination_chain == 'FTM'):
+        return min_matic_to_ftm, max_matic_to_ftm
+
+    # From Arbitrum
+    if (parent_chain == 'ARB') and (destination_chain == 'OPT'):
+        return min_arb_to_opt, max_arb_to_opt
+
+    if (parent_chain == 'ARB') and (destination_chain == 'BSC'):
+        return min_arb_to_bsc, max_arb_to_bsc
+
+    if (parent_chain == 'ARB') and (destination_chain == 'GNO'):
+        return min_arb_to_gno, max_arb_to_gno
+
+    if (parent_chain == 'ARB') and (destination_chain == 'MATIC'):
+        return min_arb_to_matic, max_arb_to_matic
+
+    if (parent_chain == 'ARB') and (destination_chain == 'ERA'):
+        return min_arb_to_era, max_arb_to_era
+
+    if (parent_chain == 'ARB') and (destination_chain == 'ZKEVM'):
+        return min_arb_to_zkevm, max_arb_to_zkevm
+
+    if (parent_chain == 'ARB') and (destination_chain == 'AVAX'):
+        return min_arb_to_avax, max_arb_to_avax
+
+    if (parent_chain == 'ARB') and (destination_chain == 'AUR'):
+        return min_arb_to_aur, max_arb_to_aur
+
+    if (parent_chain == 'ARB') and (destination_chain == 'FTM'):
+        return min_arb_to_ftm, max_arb_to_ftm
+
+        # From AVAX
+    if (parent_chain == 'AVAX') and (destination_chain == 'OPT'):
+        return min_avax_to_opt, max_avax_to_opt
+
+    if (parent_chain == 'AVAX') and (destination_chain == 'BSC'):
+        return min_avax_to_bsc, max_avax_to_bsc
+
+    if (parent_chain == 'AVAX') and (destination_chain == 'GNO'):
+        return min_avax_to_gno, max_avax_to_gno
+
+    if (parent_chain == 'AVAX') and (destination_chain == 'MATIC'):
+        return min_avax_to_matic, max_avax_to_matic
+
+    if (parent_chain == 'AVAX') and (destination_chain == 'ERA'):
+        return min_avax_to_era, max_avax_to_era
+
+    if (parent_chain == 'AVAX') and (destination_chain == 'ZKEVM'):
+        return min_avax_to_zkevm, max_avax_to_zkevm
+
+    if (parent_chain == 'AVAX') and (destination_chain == 'ARB'):
+        return min_avax_to_arb, max_avax_to_arb
+
+    if (parent_chain == 'AVAX') and (destination_chain == 'AUR'):
+        return min_avax_to_aur, max_avax_to_aur
+
+    if (parent_chain == 'AVAX') and (destination_chain == 'FTM'):
+        return min_avax_to_aur, max_avax_to_aur
+
+    # From Aurora
+    if (parent_chain == 'AUR') and (destination_chain == 'OPT'):
+        return min_aur_to_opt, max_aur_to_opt
+
+    if (parent_chain == 'AUR') and (destination_chain == 'BSC'):
+        return min_aur_to_bsc, max_aur_to_bsc
+
+    if (parent_chain == 'AUR') and (destination_chain == 'GNO'):
+        return min_aur_to_gno, max_aur_to_gno
+
+    if (parent_chain == 'AUR') and (destination_chain == 'MATIC'):
+        return min_aur_to_matic, max_aur_to_matic
+
+    if (parent_chain == 'AUR') and (destination_chain == 'ERA'):
+        return min_aur_to_era, max_aur_to_era
+
+    if (parent_chain == 'AUR') and (destination_chain == 'ZKEVM'):
+        return min_aur_to_zkevm, max_aur_to_zkevm
+
+    if (parent_chain == 'AUR') and (destination_chain == 'ARB'):
+        return min_aur_to_arb, max_aur_to_arb
+
+    if (parent_chain == 'AUR') and (destination_chain == 'AVAX'):
+        return min_aur_to_avax, max_aur_to_avax
+
+    if (parent_chain == 'AUR') and (destination_chain == 'FTM'):
+        return min_aur_to_ftm, max_aur_to_ftm
+
+    # From Fantom
+    if (parent_chain == 'FTM') and (destination_chain == 'OPT'):
+        return min_opt_to_ftm, max_opt_to_ftm
+    if (parent_chain == 'FTM') and (destination_chain == 'BSC'):
+        return min_ftm_to_bsc, max_ftm_to_bsc
+
+    if (parent_chain == 'FTM') and (destination_chain == 'GNO'):
+        return min_ftm_to_gno, max_ftm_to_gno
+
+    if (parent_chain == 'FTM') and (destination_chain == 'MATIC'):
+        return min_ftm_to_matic, max_ftm_to_matic
+
+    if (parent_chain == 'FTM') and (destination_chain == 'ERA'):
+        return min_ftm_to_era, max_ftm_to_era
+
+    if (parent_chain == 'FTM') and (destination_chain == 'ZKEVM'):
+        return min_ftm_to_zkevm, max_ftm_to_zkevm
+
+    if (parent_chain == 'FTM') and (destination_chain == 'ARB'):
+        return min_ftm_to_arb, max_ftm_to_arb
+
+    if (parent_chain == 'FTM') and (destination_chain == 'AVAX'):
+        return min_ftm_to_avax, max_ftm_to_avax
+
+    if (parent_chain == 'FTM') and (destination_chain == 'AUR'):
+        return min_ftm_to_aur, max_ftm_to_aur
 
 
 CHAIN_CONFIG_MAP = {
-    'ETH': ChainConfig(chain_id=1, rpc=RPC_ETH, contract=BUNGEE_ETH_ROUTER, tx_explorer=EXP_ETH),
-    'OPT': ChainConfig(chain_id=10, rpc=RPC_OPT, contract=BUNGEE_OPT_ROUTER, tx_explorer=EXP_OPT),
-    'BSC': ChainConfig(chain_id=56, rpc=RPC_BSC, contract=BUNGEE_BSC_ROUTER, tx_explorer=EXP_BSC),
-    'GNO': ChainConfig(chain_id=100, rpc=RPC_GNO, contract=BUNGEE_GNO_ROUTER, tx_explorer=EXP_GNO),
-    'MATIC': ChainConfig(chain_id=137, rpc=RPC_MATIC, contract=BUNGEE_MATIC_ROUTER, tx_explorer=EXP_MATIC),
-    'ERA': ChainConfig(chain_id=1101, rpc=RPC_ERA, contract=BUNGEE_ERA_ROUTER, tx_explorer=EXP_ERA),
-    'ZKEVM': ChainConfig(chain_id=1101, rpc=RPC_ZKEVM, contract=BUNGEE_ZKEVM_ROUTER, tx_explorer=EXP_ZKEVM),
-    'ARB': ChainConfig(chain_id=42161, rpc=RPC_ARB, contract=BUNGEE_ARB_ROUTER, tx_explorer=EXP_ARB),
-    'AVAX': ChainConfig(chain_id=43114, rpc=RPC_AVAX, contract=BUNGEE_AVAX_ROUTER, tx_explorer=EXP_AVAX),
-    'AUR': ChainConfig(chain_id=1313161554, rpc=RPC_AUR, contract=BUNGEE_AUR_ROUTER, tx_explorer=EXP_AUR),
-    'FTM': ChainConfig(chain_id=250, rpc=RPC_FTM, contract=BUNGEE_FTM_ROUTER, tx_explorer=EXP_FTM)
+    'ETH': ChainConfig('ETH', chain_id=1, rpc=RPC_ETH, contract=BUNGEE_ETH_ROUTER, tx_explorer=EXP_ETH),
+    'OPT': ChainConfig('OPT', chain_id=10, rpc=RPC_OPT, contract=BUNGEE_OPT_ROUTER, tx_explorer=EXP_OPT),
+    'BSC': ChainConfig('BSC', chain_id=56, rpc=RPC_BSC, contract=BUNGEE_BSC_ROUTER, tx_explorer=EXP_BSC),
+    'GNO': ChainConfig('GNO', chain_id=100, rpc=RPC_GNO, contract=BUNGEE_GNO_ROUTER, tx_explorer=EXP_GNO),
+    'MATIC': ChainConfig('MATIC', chain_id=137, rpc=RPC_MATIC, contract=BUNGEE_MATIC_ROUTER, tx_explorer=EXP_MATIC),
+    'ERA': ChainConfig('ERA', chain_id=1101, rpc=RPC_ERA, contract=BUNGEE_ERA_ROUTER, tx_explorer=EXP_ERA),
+    'ZKEVM': ChainConfig('ZKEVM', chain_id=1101, rpc=RPC_ZKEVM, contract=BUNGEE_ZKEVM_ROUTER, tx_explorer=EXP_ZKEVM),
+    'ARB': ChainConfig('ARB', chain_id=42161, rpc=RPC_ARB, contract=BUNGEE_ARB_ROUTER, tx_explorer=EXP_ARB),
+    'AVAX': ChainConfig('AVAX', chain_id=43114, rpc=RPC_AVAX, contract=BUNGEE_AVAX_ROUTER, tx_explorer=EXP_AVAX),
+    'AUR': ChainConfig('AUR', chain_id=1313161554, rpc=RPC_AUR, contract=BUNGEE_AUR_ROUTER, tx_explorer=EXP_AUR),
+    'FTM': ChainConfig('FTM', chain_id=250, rpc=RPC_FTM, contract=BUNGEE_FTM_ROUTER, tx_explorer=EXP_FTM)
 }
