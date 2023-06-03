@@ -7,7 +7,7 @@ import requests
 chain_data = {}
 
 
-def getGasLimit(chain: str) -> int:
+def get_gas_limit(chain: str) -> int:
     if chain == 'ETH':
         gas_limit = chain_data['result'][0]['gasLimit']
         return gas_limit
@@ -43,7 +43,7 @@ def getGasLimit(chain: str) -> int:
         return gas_limit
 
 
-def getMinSendAmount(parent_chain, destination_chain_id) -> Optional[float]:
+def get_min_send_amount(parent_chain, destination_chain_id) -> Optional[float]:
     try:
         # Check if the required keys exist in the JSON data
         if 'result' in chain_data and isinstance(chain_data['result'], list):
@@ -70,7 +70,7 @@ def getMinSendAmount(parent_chain, destination_chain_id) -> Optional[float]:
     return  # return if the values could not be retrieved
 
 
-def getMaxSendAmount(parent_chain, destination_chain_id) -> Optional[float]:
+def get_max_send_amount(parent_chain, destination_chain_id) -> Optional[float]:
     try:
         # Check if the required keys exist in the JSON data
         if 'result' in chain_data and isinstance(chain_data['result'], list):

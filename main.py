@@ -287,12 +287,12 @@ def min_gas_amount(parent_chain, destination_chain) -> tuple:
         return min_ftm_to_aur, max_ftm_to_aur
 
 
-def calculate_gas_price(private_key, tx: dict):
+def calculate_gas_price(private_key, tx: dict, parent_chain, send_amount):
     w3 = Web3(Web3.HTTPProvider(rpc))
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
     address = Web3.to_checksum_address(w3.eth.account.from_key(private_key).address)
     gas_price = w3.to_wei(str(w3.eth.gas_price), 'wei')
-    gas_limit = getGasLimit(parent_chain)
+    gas_limit = get_gas_limit(parent_chain)
     nonce = w3.eth.get_transaction_count(address)
     tx = {
         'nonce': nonce,
@@ -302,19 +302,19 @@ def calculate_gas_price(private_key, tx: dict):
     }
     estimated_gas = w3.eth.estimate_gas(tx)
     gas_limit = int(estimated_gas * 1.3)
-    # update the update the gas-parameters of tx
+    # update the gas-parameters of tx
     tx['gas'] = gas_limit
     return tx
 
 
-def send_tx(args):
+def send_tx(private_key, parent_chain, send_amount, destination_chain_id):
     # Function: depositNativeToken(uint256 destinationChainId,address _to)
-    private_key = args  # recipient_addresses(this implementation has been remove)
+
     address = None
     try:
         address = Web3.to_checksum_address(w3.eth.account.from_key(private_key).address)
         gas_price = w3.to_wei(str(w3.eth.gas_price), 'wei')
-        gas_limit = getGasLimit(parent_chain)
+        gas_limit = get_gas_limit(parent_chain)
         nonce = w3.eth.get_transaction_count(address)
         # Prepare the transaction data
         tx_data = {
@@ -325,9 +325,9 @@ def send_tx(args):
             'value': w3.to_wei(send_amount, 'ether')
         }
         # recalculate gas
-        tx_data = calculate_gas_price(private_key=private_key, tx=tx_data)
+        tx_data = calculate_gas_price(private_key, tx_data, parent_chain, send_amount)
         if True:  # tx_type == 1:
-            transaction = contract_refuel.functions.depositNativeToken(destinationChainId, address).build_transaction(
+            transaction = contract_refuel.functions.depositNativeToken(destination_chain_id, address).build_transaction(
                 tx_data)
 
             # Sign the transaction with the receiver's private key
@@ -358,6 +358,9 @@ def main():
     print('-' * 108)
     print((' ' * 32) + 'BUNGEE BATCH REFUELER' + (' ' * 32))
     print('-' * 108)
+
+    download_chain_data()
+
     print('Select origin chain:')
     print('0. Ethereum(ETH)')
     print('1. Optimism(OPT)')
@@ -373,140 +376,138 @@ def main():
     parent_chain = input('Input short name of chain(ETH,ARB etc.): ')
     parent_chain = parent_chain.upper()
 
-    download_chain_data()
-
-    global chainId, rpc, contract, tx_explorer, dist_tx_explorer, contract_refuel
-    global destinationChain
+    global chain_id, rpc, contract, tx_explorer, dist_tx_explorer, contract_refuel
+    global destination_chain
 
     if parent_chain == 'ETH':
-        chainId = 1
+        chain_id = 1
         rpc = RPC_ETH
         contract = BUNGEE_ETH_ROUNER
         tx_explorer = EXP_ETH
     elif parent_chain == 'OPT':
-        chainId = 10
+        chain_id = 10
         rpc = RPC_OPT
         contract = BUNGEE_OPT_ROUTER
         tx_explorer = EXP_OPT
     elif parent_chain == 'BSC':
-        chainId = 56
+        chain_id = 56
         rpc = RPC_BSC
         contract = BUNGEE_BSC_ROUTER
         tx_explorer = EXP_BSC
 
     elif parent_chain == 'GNO':
-        chainId = 100
+        chain_id = 100
         rpc = RPC_GNO
         contract = BUNGEE_GNO_ROUTER
         tx_explorer = EXP_GNO
 
     elif parent_chain == 'MATIC':
-        chainId = 137
+        chain_id = 137
         rpc = RPC_MATIC
         contract = BUNGEE_MATIC_ROUNER
         tx_explorer = EXP_MATIC
 
     elif parent_chain == 'ERA':
-        chainId = 1101
+        chain_id = 1101
         rpc = RPC_ERA
         contract = BUNGEE_ERA_ROUNER
         tx_explorer = EXP_ERA
 
     elif parent_chain == 'ZKEVM':
-        chainId = 1101
+        chain_id = 1101
         rpc = RPC_ZKEVM
         contract = BUNGEE_ZKEVM_ROUNER
         tx_explorer = EXP_ZKEVM
 
     elif parent_chain == 'ARB':
-        chainId = 42161
+        chain_id = 42161
         rpc = RPC_ARB
         contract = BUNGEE_ARB_ROUNER
         tx_explorer = EXP_ARB
 
     elif parent_chain == 'AVAX':
-        chainId = 43114
+        chain_id = 43114
         rpc = RPC_AVAX
         contract = BUNGEE_AVAX_ROUNER
         tx_explorer = EXP_AVAX
 
     elif parent_chain == 'AUR':
-        chainId = 1313161554
+        chain_id = 1313161554
         rpc = RPC_AUR
         contract = BUNGEE_AUR_ROUNER
         tx_explorer = EXP_AUR
 
     elif parent_chain == 'FTM':
-        chainId = 250
+        chain_id = 250
         rpc = RPC_FTM
         contract = BUNGEE_FTM_ROUNER
         tx_explorer = EXP_FTM
 
     print(f'{parent_chain} selected like origin chain')
 
-    destinationChainId = chainId
-    while (destinationChainId == chainId):
+    destination_chain_id = chain_id
+    while destination_chain_id == chain_id:
         destination_chain = input(f'Select target chain (ETH and {parent_chain} can not be select): ')
         destination_chain = destination_chain.upper()
 
-        if destination_chain == chainId:
+        if destination_chain == chain_id:
             print(f'origin chain {destination_chain} can not be select like destination chain')
 
         elif destination_chain == 'ETH':
             print(f'{destination_chain} can not be select like destination chain')
 
         elif destination_chain == 'OPT':
-            destinationChainId = 10
+            destination_chain_id = 10
             gas_amount = min_gas_amount(parent_chain, destination_chain)
             dist_tx_explorer = EXP_OPT
 
         elif destination_chain == 'BSC':
-            destinationChainId = 56
+            destination_chain_id = 56
             gas_amount = min_gas_amount(parent_chain, destination_chain)
             dist_tx_explorer = EXP_BSC
 
         elif destination_chain == 'GNO':
-            destinationChainId = 100
+            destination_chain_id = 100
             gas_amount = min_gas_amount(parent_chain, destination_chain)
             dist_tx_explorer = EXP_GNO
 
         elif destination_chain == 'MATIC':
-            destinationChainId = 137
+            destination_chain_id = 137
             gas_amount = min_gas_amount(parent_chain, destination_chain)
             dist_tx_explorer = EXP_MATIC
 
         elif destination_chain == 'ERA':
-            destinationChainId = 324
+            destination_chain_id = 324
             gas_amount = min_gas_amount(parent_chain, destination_chain)
             dist_tx_explorer = EXP_ERA
 
         elif destination_chain == 'ZKEVM':
-            destinationChainId = 1101
+            destination_chain_id = 1101
             gas_amount = min_gas_amount(parent_chain, destination_chain)
             dist_tx_explorer = EXP_ZKEVM
 
         elif destination_chain == 'ARB':
-            destinationChainId = 42161
+            destination_chain_id = 42161
             gas_amount = min_gas_amount(parent_chain, destination_chain)
             dist_tx_explorer = EXP_ARB
 
         elif destination_chain == 'AVAX':
-            destinationChainId = 43114
+            destination_chain_id = 43114
             gas_amount = min_gas_amount(parent_chain, destination_chain)
             dist_tx_explorer = EXP_AVAX
 
         elif destination_chain == 'AUR':
-            destinationChainId = 1313161554
+            destination_chain_id = 1313161554
             gas_amount = min_gas_amount(parent_chain, destination_chain)
             dist_tx_explorer = EXP_AUR
 
         elif destination_chain == 'FTM':
-            destinationChainId = 250
+            destination_chain_id = 250
             gas_amount = min_gas_amount(parent_chain, destination_chain)
             dist_tx_explorer = EXP_AUR
         else:
             logger.error(f'Chain {destination_chain} not found')
-            exit(-1)
+            return
 
     gas_token = get_native_symbol(parent_chain)
     print(f"Minimum amount for send = {gas_amount[0]} {gas_token} + 10%")
@@ -516,7 +517,8 @@ def main():
     print(f"You can input value >= {gas_amount[0]} {gas_token} <= {gas_amount[1]} {gas_token}")
     print(f"You also can input 'min'/ 'max' for send minimum/maximum amounts {gas_token}")
     amount = ''
-    while (amount != 'MAX') or (amount != 'MIN') or ((amount) < gas_amount[0]) or (float(amount) > gas_amount[1]):
+    send_amount = 0
+    while (amount != 'MAX') or (amount != 'MIN') or (amount < gas_amount[0]) or (float(amount) > gas_amount[1]):
         amount = input('Input amount to send: ')
         amount = amount.upper()
 
@@ -555,7 +557,10 @@ def main():
     processed_addresses = 0
     while processed_addresses < num_wallets:
         with Pool(processes=len(private_keys)) as executor:
-            executor.map(send_tx, private_keys)
+            args = [(
+                private_key, parent_chain, send_amount, destination_chain_id
+            ) for private_key in private_keys]
+            executor.map(send_tx, args)
         processed_addresses += num_wallets - processed_addresses
 
 
