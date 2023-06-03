@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Optional
+from typing import Optional, Tuple
 
 import requests
 
@@ -43,12 +43,12 @@ def get_gas_limit(chain: str) -> int:
         return gas_limit
 
 
-def get_min_send_amount(parent_chain, destination_chain_id) -> Optional[float]:
+def get_send_amounts(source_chain_name, destination_chain_id) -> Optional[Tuple[float, float]]:
     try:
         # Check if the required keys exist in the JSON data
         if 'result' in chain_data and isinstance(chain_data['result'], list):
             for chain in chain_data['result']:
-                if 'name' in chain and chain['name'] == parent_chain:
+                if 'name' in chain and chain['name'] == source_chain_name:
                     parent_result = chain
                     break
             else:
@@ -61,37 +61,18 @@ def get_min_send_amount(parent_chain, destination_chain_id) -> Optional[float]:
                         break
                 else:
                     return  # Destination chain not found
+
+                min_amount = None
+                max_amount = None
 
                 if 'minAmount' in destination_limits:
                     min_amount = float(destination_limits['minAmount'])
-                    return min_amount / 10 ** 18
-    except (KeyError, IndexError, ValueError):
-        pass  # Handle the error gracefully, e.g., return a default value or raise an exception
-    return  # return if the values could not be retrieved
-
-
-def get_max_send_amount(parent_chain, destination_chain_id) -> Optional[float]:
-    try:
-        # Check if the required keys exist in the JSON data
-        if 'result' in chain_data and isinstance(chain_data['result'], list):
-            for chain in chain_data['result']:
-                if 'name' in chain and chain['name'] == parent_chain:
-                    parent_result = chain
-                    break
-            else:
-                return  # Parent chain not found
-
-            if 'limits' in parent_result and isinstance(parent_result['limits'], list):
-                for limit in parent_result['limits']:
-                    if 'chainId' in limit and limit['chainId'] == destination_chain_id:
-                        destination_limits = limit
-                        break
-                else:
-                    return  # Destination chain not found
-
                 if 'maxAmount' in destination_limits:
                     max_amount = float(destination_limits['maxAmount'])
-                    return max_amount / 10 ** 18
+
+                if min_amount is not None and max_amount is not None:
+                    return min_amount / 10 ** 18, max_amount / 10 ** 18
+
     except (KeyError, IndexError, ValueError):
         pass  # Handle the error gracefully, e.g., return a default value or raise an exception
 
