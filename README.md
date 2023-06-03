@@ -13,7 +13,6 @@ Batch send gas-token [bungee.exchange](https://bungee.exchange) (Powered by Sock
 ## Package description
 
 - `main.py` - main module for execute;
-- `main_ru.py` - main module for execute(russian localization);
 - `refuel.py` - module for getting actual EVM chain data (minAmount/maxAmount, network availability);
 - `chains.json` - formatted json file obtained from `https://refuel.socket.tech/chains` (updated every time the script is run);
 - `config.py` - module containing the required imports, settings of minimum amounts to send, url-addresses of block explorers;
