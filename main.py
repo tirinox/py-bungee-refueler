@@ -1,9 +1,7 @@
-from multiprocessing import Pool
 from sys import stderr
 
 from loguru import logger
 from web3 import Web3
-from web3.auto import w3
 from web3.middleware import geth_poa_middleware
 
 from config import *
@@ -16,19 +14,21 @@ logger.add(stderr, format="<white>{time:HH:mm:ss}</white>"
 
 
 def get_native_symbol(chain: str) -> str:
-    if chain == 'ETH' or chain == 'OPT' or chain == 'ARB' or chain == 'AUR' or chain == 'ERA':
-        return 'ether'
+    symbol_mapping = {
+        'ETH': 'ether',
+        'OPT': 'ether',
+        'ARB': 'ether',
+        'AUR': 'ether',
+        'ERA': 'ether',
+        'MATIC': 'matic',
+        'ZKEVM': 'matic',
+        'BSC': 'bnb',
+        'GNO': 'xdai',
+        'AVAX': 'avax',
+        'FTM': 'ftm'
+    }
 
-    elif chain == 'MATIC' or chain == 'ZKEVM':
-        return 'matic'
-    elif chain == 'BSC':
-        return 'bnb'
-    elif chain == 'GNO':
-        return 'xdai'
-    elif chain == 'AVAX':
-        return 'avax'
-    elif chain == 'FTM':
-        return 'ftm'
+    return symbol_mapping.get(chain, '')
 
 
 def min_gas_amount(parent_chain, destination_chain) -> tuple:
@@ -307,7 +307,7 @@ def calculate_gas_price(private_key, tx: dict, parent_chain, send_amount):
     return tx
 
 
-def send_tx(private_key, parent_chain, send_amount, destination_chain_id):
+def send_tx(w3, private_key, parent_chain, send_amount, destination_chain_id, destination_chain, tx_explorer):
     # Function: depositNativeToken(uint256 destinationChainId,address _to)
 
     address = None
@@ -345,8 +345,8 @@ def send_tx(private_key, parent_chain, send_amount, destination_chain_id):
             if receipt['status'] == 1:
                 logger.info(f'Refueling from {address} | {tx_explorer}tx/{tx_hash}')
                 logger.info(
-                    f'Waiting txn for destination chain ({destination_chain}) {dist_tx_explorer}address/{address}/#internaltx')
-
+                    f'Waiting txn for destination chain ({destination_chain}) '
+                    f'{dist_tx_explorer}address/{address}/#internaltx')
             else:
                 raise ValueError(f"Refueling from {address} failed with receipt status {receipt['status']}")
 
@@ -373,84 +373,21 @@ def main():
     print('8. Fantom')
     print('9. Avalanche C-Chain(AVAX)')
     print('10. Aurora(AUR)')
-    parent_chain = input('Input short name of chain(ETH,ARB etc.): ')
+    parent_chain = input('Input short name of chain(ETH,ARB etc.): ').upper()
     parent_chain = parent_chain.upper()
 
-    global chain_id, rpc, contract, tx_explorer, dist_tx_explorer, contract_refuel
-    global destination_chain
+    global dist_tx_explorer, contract_refuel
 
-    if parent_chain == 'ETH':
-        chain_id = 1
-        rpc = RPC_ETH
-        contract = BUNGEE_ETH_ROUNER
-        tx_explorer = EXP_ETH
-    elif parent_chain == 'OPT':
-        chain_id = 10
-        rpc = RPC_OPT
-        contract = BUNGEE_OPT_ROUTER
-        tx_explorer = EXP_OPT
-    elif parent_chain == 'BSC':
-        chain_id = 56
-        rpc = RPC_BSC
-        contract = BUNGEE_BSC_ROUTER
-        tx_explorer = EXP_BSC
-
-    elif parent_chain == 'GNO':
-        chain_id = 100
-        rpc = RPC_GNO
-        contract = BUNGEE_GNO_ROUTER
-        tx_explorer = EXP_GNO
-
-    elif parent_chain == 'MATIC':
-        chain_id = 137
-        rpc = RPC_MATIC
-        contract = BUNGEE_MATIC_ROUNER
-        tx_explorer = EXP_MATIC
-
-    elif parent_chain == 'ERA':
-        chain_id = 1101
-        rpc = RPC_ERA
-        contract = BUNGEE_ERA_ROUNER
-        tx_explorer = EXP_ERA
-
-    elif parent_chain == 'ZKEVM':
-        chain_id = 1101
-        rpc = RPC_ZKEVM
-        contract = BUNGEE_ZKEVM_ROUNER
-        tx_explorer = EXP_ZKEVM
-
-    elif parent_chain == 'ARB':
-        chain_id = 42161
-        rpc = RPC_ARB
-        contract = BUNGEE_ARB_ROUNER
-        tx_explorer = EXP_ARB
-
-    elif parent_chain == 'AVAX':
-        chain_id = 43114
-        rpc = RPC_AVAX
-        contract = BUNGEE_AVAX_ROUNER
-        tx_explorer = EXP_AVAX
-
-    elif parent_chain == 'AUR':
-        chain_id = 1313161554
-        rpc = RPC_AUR
-        contract = BUNGEE_AUR_ROUNER
-        tx_explorer = EXP_AUR
-
-    elif parent_chain == 'FTM':
-        chain_id = 250
-        rpc = RPC_FTM
-        contract = BUNGEE_FTM_ROUNER
-        tx_explorer = EXP_FTM
+    source_chain = CHAIN_CONFIG_MAP.get(parent_chain)
 
     print(f'{parent_chain} selected like origin chain')
 
-    destination_chain_id = chain_id
-    while destination_chain_id == chain_id:
+    destination_chain_id = source_chain.chain_id
+    while destination_chain_id == source_chain.chain_id:
         destination_chain = input(f'Select target chain (ETH and {parent_chain} can not be select): ')
         destination_chain = destination_chain.upper()
 
-        if destination_chain == chain_id:
+        if destination_chain == source_chain.chain_id:
             print(f'origin chain {destination_chain} can not be select like destination chain')
 
         elif destination_chain == 'ETH':
@@ -537,15 +474,15 @@ def main():
             send_amount = float(amount)
             break
 
-    print(f'Starting send Gas from {parent_chain} to {destination_chain}')
+    print(f'Starting send Gas from {parent_chain} to {source_chain.destination_chain}')
     print(f"{amount} {gas_token} will be send from all your addressess")
-    w3 = Web3(Web3.HTTPProvider(rpc))
+    w3 = Web3(Web3.HTTPProvider(source_chain.rpc))
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
     # Loads ABI for contracts
     with open('ABI/socket.json', 'r', encoding='utf-8-sig') as file:
         SOCKET_ABI = file.read().strip().replace('\n', '').replace(' ', '')
-    contract_refuel = w3.eth.contract(address=Web3.to_checksum_address(contract),
+    contract_refuel = w3.eth.contract(address=Web3.to_checksum_address(source_chain.contract),
                                       abi=SOCKET_ABI)
 
     # Loads private_keys
@@ -554,14 +491,20 @@ def main():
     num_wallets = len(private_keys)
     logger.info(f'Loaded {num_wallets} wallets')
 
-    processed_addresses = 0
-    while processed_addresses < num_wallets:
-        with Pool(processes=len(private_keys)) as executor:
-            args = [(
-                private_key, parent_chain, send_amount, destination_chain_id
-            ) for private_key in private_keys]
-            executor.map(send_tx, args)
-        processed_addresses += num_wallets - processed_addresses
+    for private_key in private_keys:
+        send_tx(w3, private_key, parent_chain, send_amount, destination_chain_id,
+                source_chain.destination_chain, source_chain.tx_explorer)
+
+    # processed_addresses = 0
+    # while processed_addresses < num_wallets:
+    #     with Pool(processes=len(private_keys)) as executor:
+    #         args = [
+    #             (private_key, parent_chain, send_amount, destination_chain_id)
+    #             for private_key in private_keys
+    #         ]
+    #         executor.map(send_tx, args)
+    #     processed_addresses += num_wallets - processed_addresses
+    #
 
 
 if __name__ == '__main__':
