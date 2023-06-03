@@ -1,11 +1,6 @@
-from refuel import *
-from web3 import Web3
-from web3.contract import Contract
-from web3.middleware import geth_poa_middleware
-from loguru import logger
-from sys import stderr
-from multiprocessing.dummy import Pool
 from dotenv import load_dotenv
+
+from refuel import *
 
 load_dotenv()
 BUNGEE_ETH_ROUNER = os.getenv('BUNGEE_ETH_ROUNER')
@@ -20,18 +15,17 @@ BUNGEE_AVAX_ROUNER = os.getenv('BUNGEE_AVAX_ROUNER')
 BUNGEE_AUR_ROUNER = os.getenv('BUNGEE_AUR_ROUNER')
 BUNGEE_FTM_ROUNER = os.getenv('BUNGEE_FTM_ROUNER')
 
-
 RPC_ETH = os.getenv('RPC_ETH')
 RPC_OPT = os.getenv('RPC_OPT')
 RPC_BSC = os.getenv('RPC_BSC')
-RPC_GNO =  os.getenv('RPC_GNO')
-RPC_MATIC =  os.getenv('RPC_MATIC')
-RPC_ERA =  os.getenv('RPC_ERA')
-RPC_ZKEVM =  os.getenv('RPC_ZKEVM')
+RPC_GNO = os.getenv('RPC_GNO')
+RPC_MATIC = os.getenv('RPC_MATIC')
+RPC_ERA = os.getenv('RPC_ERA')
+RPC_ZKEVM = os.getenv('RPC_ZKEVM')
 RPC_ARB = os.getenv('RPC_ARB')
-RPC_AVAX =  os.getenv('RPC_AVAX')
-RPC_AUR =  os.getenv('RPC_AUR')
-RPC_FTM =  os.getenv('RPC_FTM')
+RPC_AVAX = os.getenv('RPC_AVAX')
+RPC_AUR = os.getenv('RPC_AUR')
+RPC_FTM = os.getenv('RPC_FTM')
 
 EXP_ETH = 'https://etherscan.io/'
 EXP_OPT = 'https://optimistic.etherscan.io/'
