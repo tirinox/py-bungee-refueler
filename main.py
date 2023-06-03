@@ -51,25 +51,22 @@ def calculate_gas_price(rpc, private_key, dest_chain_key, send_amount):
     return tx
 
 
-def send_tx(w3, private_key,
-            dest_chain_key,
-            send_amount,
-            destination_chain_id, destination_chain, tx_explorer, rpc,
-            dest_tx_explorer):
+def send_tx(w3,
+            send_amount: float,
+            private_key,
+            source_chain: ChainConfig,
+            dest_chain: ChainConfig):
     # Function: depositNativeToken(uint256 destinationChainId,address _to)
 
     address = None
     try:
         address = Web3.to_checksum_address(w3.eth.account.from_key(private_key).address)
-        gas_price = w3.to_wei(str(w3.eth.gas_price), 'wei')
-        gas_limit = get_gas_limit(dest_chain_key)
-        nonce = w3.eth.get_transaction_count(address)
 
         # recalculate gas
-        tx_data = calculate_gas_price(rpc, private_key, dest_chain_key, send_amount)
+        tx_data = calculate_gas_price(source_chain.rpc, private_key, dest_chain.key, send_amount)
         if True:  # tx_type == 1:
             transaction = contract_refuel.functions \
-                .depositNativeToken(destination_chain_id, address) \
+                .depositNativeToken(dest_chain.chain_id, address) \
                 .build_transaction(tx_data)
 
             # Sign the transaction with the receiver's private key
@@ -85,10 +82,10 @@ def send_tx(w3, private_key,
 
             # Check if the transaction was successful
             if receipt['status'] == 1:
-                logger.info(f'Refueling from {address} | {tx_explorer}tx/{tx_hash}')
+                logger.info(f'Refueling from {address} | {source_chain.tx_explorer}tx/{tx_hash}')
                 logger.info(
-                    f'Waiting txn for destination chain ({destination_chain}) '
-                    f'{dest_tx_explorer}address/{address}/#internaltx')
+                    f'Waiting txn for destination chain ({dest_chain.key}) '
+                    f'{dest_chain.tx_explorer}address/{address}/#internaltx')
             else:
                 raise ValueError(f"Refueling from {address} failed with receipt status {receipt['status']}")
 
@@ -115,58 +112,49 @@ def main():
     print('8. Fantom')
     print('9. Avalanche C-Chain(AVAX)')
     print('10. Aurora(AUR)')
+
     dest_chain_key = input('Input short name of chain(ETH,ARB etc.): ').upper()
 
-    source_chain = CHAIN_CONFIG_MAP.get(dest_chain_key)
+    source_chain_desc = CHAIN_CONFIG_MAP.get(dest_chain_key)
 
     print(f'{dest_chain_key} selected like origin chain')
 
-    dest_chain_desc = None
-    gas_amount = None
+    while True:
+        dest_chain_name = input(f'Select target chain (ETH and {dest_chain_key} can not be select): ').upper()
+        dest_chain_desc = CHAIN_CONFIG_MAP.get(dest_chain_name)
 
-    destination_chain_id = source_chain.chain_id
-    while destination_chain_id == source_chain.chain_id:
-        destination_chain = input(f'Select target chain (ETH and {dest_chain_key} can not be select): ')
-        destination_chain = destination_chain.upper()
-
-        dest_chain_desc = CHAIN_CONFIG_MAP.get(destination_chain)
-
-        if destination_chain == source_chain.chain_id:
-            print(f'origin chain {destination_chain} can not be select like destination chain')
-
-        elif destination_chain == 'ETH':
-            print(f'{destination_chain} can not be select like destination chain')
-
+        if dest_chain_name == source_chain_desc.chain_id:
+            print(f'origin chain {dest_chain_name} can not be select like destination chain')
+        elif dest_chain_name == 'ETH':
+            print(f'{dest_chain_name} can not be select like destination chain')
         elif dest_chain_desc:
-            destination_chain_id = dest_chain_desc.chain_id
-            gas_amount = min_gas_amount(dest_chain_key, destination_chain)
+            # found a good one
             break
-
         else:
-            logger.error(f'Chain {destination_chain} not found')
-            return
+            logger.error(f'Chain {dest_chain_name} not found')
 
     gas_token = get_native_symbol(dest_chain_key)
-    print(f"Minimum amount for send = {gas_amount[0]} {gas_token} + 10%")
-    print(f"Maximum amount for send = {gas_amount[1]} {gas_token} - 10%")
+    min_gas, max_gas = min_and_max_gas_amount(dest_chain_key, dest_chain_name)
+    print(f"Minimum amount for send = {min_gas} {gas_token} + 10%")
+    print(f"Maximum amount for send = {max_gas} {gas_token} - 10%")
 
     # print(f'Minimum Gas amount: {gas_amount} {gas_token} + 10%')
-    print(f"You can input value >= {gas_amount[0]} {gas_token} <= {gas_amount[1]} {gas_token}")
+    print(f"You can input value >= {min_gas} {gas_token} <= {max_gas} {gas_token}")
     print(f"You also can input 'min'/ 'max' for send minimum/maximum amounts {gas_token}")
     amount = ''
     send_amount = 0
-    while (amount != 'MAX') or (amount != 'MIN') or (amount < gas_amount[0]) or (float(amount) > gas_amount[1]):
+    while (amount != 'MAX') or (amount != 'MIN') or (float(amount) < min_gas) or (float(amount) > max_gas):
         amount = input('Input amount to send: ')
         amount = amount.upper()
 
         # Setting gas amount for send
         if amount == 'MAX':
-            amount = gas_amount[1] * 0.9
+            amount = max_gas * 0.9
             send_amount = float(amount)
             break
 
         elif amount == 'MIN':
-            amount = gas_amount[0] * 1.1
+            amount = min_gas * 1.1
             send_amount = float(amount)
             break
 
@@ -174,9 +162,9 @@ def main():
             send_amount = float(amount)
             break
 
-    print(f'Starting send Gas from {dest_chain_key} to {source_chain.destination_chain}')
-    print(f"{amount} {gas_token} will be send from all your addressess")
-    w3 = Web3(Web3.HTTPProvider(source_chain.rpc))
+    print(f'Starting send Gas from {dest_chain_key} to {source_chain_desc.destination_chain}')
+    print(f"{amount} {gas_token} will be send from all your addresses")
+    w3 = Web3(Web3.HTTPProvider(source_chain_desc.rpc))
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
     # Loads ABI for contracts
@@ -184,7 +172,7 @@ def main():
         SOCKET_ABI = file.read().strip().replace('\n', '').replace(' ', '')
 
     global contract_refuel
-    contract_refuel = w3.eth.contract(address=Web3.to_checksum_address(source_chain.contract),
+    contract_refuel = w3.eth.contract(address=Web3.to_checksum_address(source_chain_desc.contract),
                                       abi=SOCKET_ABI)
 
     # Loads private_keys
@@ -194,9 +182,7 @@ def main():
     logger.info(f'Loaded {num_wallets} wallets')
 
     for private_key in private_keys:
-        send_tx(w3, private_key, dest_chain_key, send_amount, destination_chain_id,
-                source_chain.destination_chain, source_chain.tx_explorer,
-                source_chain.rpc, dest_chain_desc.tx_explorer)
+        send_tx(w3, send_amount, private_key, source_chain_desc, dest_chain_desc)
 
 
 if __name__ == '__main__':
