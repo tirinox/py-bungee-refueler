@@ -113,34 +113,36 @@ def main():
     print('9. Avalanche C-Chain(AVAX)')
     print('10. Aurora(AUR)')
 
-    dest_chain_key = input('Input short name of chain(ETH,ARB etc.): ').upper()
-
-    source_chain_desc = CHAIN_CONFIG_MAP.get(dest_chain_key)
-
-    print(f'{dest_chain_key} selected like origin chain')
+    while True:
+        source_key = input('Input short name of chain(ETH,ARB etc.): ').upper()
+        source_chain_desc = CHAIN_CONFIG_MAP.get(source_key)
+        if source_chain_desc:
+            print(f'{source_chain_desc.name} selected like origin chain')
+            break
+        else:
+            logger.error(f'Chain {source_key} not found')
 
     while True:
-        dest_chain_name = input(f'Select target chain (ETH and {dest_chain_key} can not be select): ').upper()
+        dest_chain_name = input(f'Select target chain (ETH and {source_key} can not be select): ').upper()
         dest_chain_desc = CHAIN_CONFIG_MAP.get(dest_chain_name)
 
+        if dest_chain_desc:
+            break
         if dest_chain_name == source_chain_desc.chain_id:
             print(f'origin chain {dest_chain_name} can not be select like destination chain')
         elif dest_chain_name == 'ETH':
             print(f'{dest_chain_name} can not be select like destination chain')
-        elif dest_chain_desc:
-            # found a good one
-            break
         else:
             logger.error(f'Chain {dest_chain_name} not found')
 
-    gas_token = get_native_symbol(dest_chain_key)
-    min_gas, max_gas = min_and_max_gas_amount(dest_chain_key, dest_chain_name)
+    gas_token = get_native_symbol(source_key)
+    min_gas, max_gas = min_and_max_gas_amount(source_key, dest_chain_name)
     print(f"Minimum amount for send = {min_gas} {gas_token} + 10%")
     print(f"Maximum amount for send = {max_gas} {gas_token} - 10%")
 
-    # print(f'Minimum Gas amount: {gas_amount} {gas_token} + 10%')
     print(f"You can input value >= {min_gas} {gas_token} <= {max_gas} {gas_token}")
     print(f"You also can input 'min'/ 'max' for send minimum/maximum amounts {gas_token}")
+
     amount = ''
     send_amount = 0
     while (amount != 'MAX') or (amount != 'MIN') or (float(amount) < min_gas) or (float(amount) > max_gas):
@@ -162,7 +164,7 @@ def main():
             send_amount = float(amount)
             break
 
-    print(f'Starting send Gas from {dest_chain_key} to {source_chain_desc.destination_chain}')
+    print(f'Starting send Gas from {dest_chain_desc.name} to {source_chain_desc.name}')
     print(f"{amount} {gas_token} will be send from all your addresses")
     w3 = Web3(Web3.HTTPProvider(source_chain_desc.rpc))
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
