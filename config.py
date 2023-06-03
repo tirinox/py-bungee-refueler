@@ -1,19 +1,21 @@
+from typing import NamedTuple
+
 from dotenv import load_dotenv
 
 from refuel import *
 
 load_dotenv()
-BUNGEE_ETH_ROUNER = os.getenv('BUNGEE_ETH_ROUNER')
+BUNGEE_ETH_ROUTER = os.getenv('BUNGEE_ETH_ROUTER')
 BUNGEE_OPT_ROUTER = os.getenv('BUNGEE_OPT_ROUTER')
 BUNGEE_BSC_ROUTER = os.getenv('BUNGEE_BSC_ROUTER')
 BUNGEE_GNO_ROUTER = os.getenv('BUNGEE_GNO_ROUTER')
-BUNGEE_MATIC_ROUNER = os.getenv('BUNGEE_MATIC_ROUNER')
-BUNGEE_ERA_ROUNER = os.getenv('BUNGEE_ERA_ROUNER')
-BUNGEE_ZKEVM_ROUNER = os.getenv('BUNGEE_ZKEVM_ROUNER')
-BUNGEE_ARB_ROUNER = os.getenv('BUNGEE_ARB_ROUNER')
-BUNGEE_AVAX_ROUNER = os.getenv('BUNGEE_AVAX_ROUNER')
-BUNGEE_AUR_ROUNER = os.getenv('BUNGEE_AUR_ROUNER')
-BUNGEE_FTM_ROUNER = os.getenv('BUNGEE_FTM_ROUNER')
+BUNGEE_MATIC_ROUTER = os.getenv('BUNGEE_MATIC_ROUTER')
+BUNGEE_ERA_ROUTER = os.getenv('BUNGEE_ERA_ROUTER')
+BUNGEE_ZKEVM_ROUTER = os.getenv('BUNGEE_ZKEVM_ROUTER')
+BUNGEE_ARB_ROUTER = os.getenv('BUNGEE_ARB_ROUTER')
+BUNGEE_AVAX_ROUTER = os.getenv('BUNGEE_AVAX_ROUTER')
+BUNGEE_AUR_ROUTER = os.getenv('BUNGEE_AUR_ROUTER')
+BUNGEE_FTM_ROUTER = os.getenv('BUNGEE_FTM_ROUTER')
 
 RPC_ETH = os.getenv('RPC_ETH')
 RPC_OPT = os.getenv('RPC_OPT')
@@ -286,3 +288,25 @@ max_arb_to_ftm = get_max_send_amount('Arbitrum', 250)
 max_avax_to_ftm = get_max_send_amount('Avalanche', 250)
 max_aur_to_ftm = get_max_send_amount('Aurora', 250)
 max_gno_to_ftm = get_max_send_amount('Gnosis', 250)
+
+
+class ChainConfig(NamedTuple):
+    chain_id: int
+    rpc: str
+    contract: str
+    tx_explorer: str
+
+
+CHAIN_CONFIG_MAP = {
+    'ETH': ChainConfig(chain_id=1, rpc=RPC_ETH, contract=BUNGEE_ETH_ROUTER, tx_explorer=EXP_ETH),
+    'OPT': ChainConfig(chain_id=10, rpc=RPC_OPT, contract=BUNGEE_OPT_ROUTER, tx_explorer=EXP_OPT),
+    'BSC': ChainConfig(chain_id=56, rpc=RPC_BSC, contract=BUNGEE_BSC_ROUTER, tx_explorer=EXP_BSC),
+    'GNO': ChainConfig(chain_id=100, rpc=RPC_GNO, contract=BUNGEE_GNO_ROUTER, tx_explorer=EXP_GNO),
+    'MATIC': ChainConfig(chain_id=137, rpc=RPC_MATIC, contract=BUNGEE_MATIC_ROUTER, tx_explorer=EXP_MATIC),
+    'ERA': ChainConfig(chain_id=1101, rpc=RPC_ERA, contract=BUNGEE_ERA_ROUTER, tx_explorer=EXP_ERA),
+    'ZKEVM': ChainConfig(chain_id=1101, rpc=RPC_ZKEVM, contract=BUNGEE_ZKEVM_ROUTER, tx_explorer=EXP_ZKEVM),
+    'ARB': ChainConfig(chain_id=42161, rpc=RPC_ARB, contract=BUNGEE_ARB_ROUTER, tx_explorer=EXP_ARB),
+    'AVAX': ChainConfig(chain_id=43114, rpc=RPC_AVAX, contract=BUNGEE_AVAX_ROUTER, tx_explorer=EXP_AVAX),
+    'AUR': ChainConfig(chain_id=1313161554, rpc=RPC_AUR, contract=BUNGEE_AUR_ROUTER, tx_explorer=EXP_AUR),
+    'FTM': ChainConfig(chain_id=250, rpc=RPC_FTM, contract=BUNGEE_FTM_ROUTER, tx_explorer=EXP_FTM)
+}
