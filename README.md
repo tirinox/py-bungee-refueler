@@ -6,10 +6,6 @@ Batch send gas-token [bungee.exchange](https://bungee.exchange) (Powered by Sock
 
 ![py-bungee-refueler](https://github.com/whonion/py-bungee-refueler/blob/main/py-bungee-refueler.png?raw=true)
 
-`main_ru.py` preview<br>
-
-![py-bungee-refueler-ru](https://github.com/whonion/py-bungee-refueler/blob/main/py-bungee-refueler-ru.png?raw=true)
-
 ## Package description
 
 - `main.py` - main module for execute;
@@ -22,7 +18,6 @@ Batch send gas-token [bungee.exchange](https://bungee.exchange) (Powered by Sock
 ## Description of required files
 
 - `accounts.txt` - private keys of wallets
-- ~~`recipient_addresses.txt` - addresses of recipient (if you want to send to another address)~~
 - `.env` - the file with your RPC variables and contract address of Socket GasMovr
 
 _example of `.env`-file_
@@ -78,7 +73,6 @@ pip install -r requierements.txt
 
 - Add your private keys to the `accounts.txt` file;
 - Add your RPCs to the `.env' file;
-- ~~Add recipient addresses to `recipient_addresses.txt` for receive in the target network's native token on another address;<br/>~~
 - Run `main.py` and follow the script prompts.
 
 _for Windows_
