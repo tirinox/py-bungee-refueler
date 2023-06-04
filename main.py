@@ -95,26 +95,17 @@ def send_tx(w3,
 
 def main():
     print('-' * 108)
-    print((' ' * 32) + 'BUNGEE BATCH REFUELER' + (' ' * 32))
+    print(f'{"BUNGEE BATCH REFUELER":^108}')
     print('-' * 108)
 
     download_chain_data()
 
     print('Select origin chain:')
-    print('0. Ethereum(ETH)')
-    print('1. Optimism(OPT)')
-    print('2. BNB Chain(BSC)')
-    print('3. Gnosis(GNO)')
-    print('4. Polygon(Matic)')
-    print('5. ERA(while no implementaton)')
-    print('6. ZKEVM(while no implementaton)')
-    print('7. Arbitrum(ARB)')
-    print('8. Fantom')
-    print('9. Avalanche C-Chain(AVAX)')
-    print('10. Aurora(AUR)')
+    for i, chain in enumerate(CHAIN_CONFIG_MAP.values()):
+        print(f'{i:3}. {chain.name:10} => {chain.key}')
 
     while True:
-        source_key = input('Input short name of chain(ETH,ARB etc.): ').upper()
+        source_key = input('Input short name of the source chain (ETH, ARB etc.): ').upper()
         source_chain_desc = CHAIN_CONFIG_MAP.get(source_key)
         if source_chain_desc:
             print(f'{source_chain_desc.name} selected like origin chain')
@@ -123,7 +114,7 @@ def main():
             logger.error(f'Chain {source_key} not found')
 
     while True:
-        dest_chain_name = input(f'Select target chain (ETH and {source_key} can not be select): ').upper()
+        dest_chain_name = input(f'Select target chain (ETH and {source_key} can not be selected): ').upper()
         dest_chain_desc = CHAIN_CONFIG_MAP.get(dest_chain_name)
 
         if dest_chain_desc:

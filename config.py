@@ -1,4 +1,3 @@
-from pprint import pprint
 from typing import NamedTuple
 
 from dotenv import load_dotenv
@@ -59,5 +58,4 @@ def min_and_max_gas_amount(source_chain_key: str, dest_chain_key: str) -> Tuple[
 
     return get_send_amounts(source.name, destination.chain_id)
 
-
-pprint(CHAIN_CONFIG_MAP)
+# print(CHAIN_CONFIG_MAP)
