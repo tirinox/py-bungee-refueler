@@ -1,3 +1,5 @@
+import argparse
+import sys
 from sys import stderr
 
 from loguru import logger
@@ -90,7 +92,7 @@ def send_tx(w3,
                 raise ValueError(f"Refueling from {address} failed with receipt status {receipt['status']}")
 
     except Exception as error:
-        logger.error(f'{address} | {error}')
+        logger.exception(f'{address} | {error}')
 
 
 def main():
@@ -173,7 +175,7 @@ def perform_actions(private_keys: list,
                     send_amount: float,
                     source_chain_desc: ChainConfig,
                     dest_chain_desc: ChainConfig):
-    print(f'Starting send Gas from {dest_chain_desc.name} to {source_chain_desc.name}')
+    print(f'Starting send {send_amount:.5} Gas from {source_chain_desc.name} to {dest_chain_desc.name}')
 
     w3 = Web3(Web3.HTTPProvider(source_chain_desc.rpc))
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
@@ -191,5 +193,43 @@ def perform_actions(private_keys: list,
         send_tx(w3, send_amount, private_key, source_chain_desc, dest_chain_desc)
 
 
+def read_arguments():
+    arg_parser = argparse.ArgumentParser(description=f'Bungee batch refueler. Supported chains are: {ALL_CHAINS}')
+    arg_parser.add_argument('-k', '--private-key', type=str, help='private key in hex fromat without 0x prefix')
+    arg_parser.add_argument('-a', '--amount', type=float, required=True, help='amount of coins to send')
+    arg_parser.add_argument('-s', '--source-chain', '--src', '--source', type=str, required=True,
+                            help='source chain code e.g. ARB, MATIC, OP etc.')
+    arg_parser.add_argument('-d', '--destination-chain', '-dst', '--dest', type=str, required=True,
+                            help='destination chain code')
+    arg_parser.add_argument('-U', '--update-chain-data', action='store_true', help='update chain data')
+    return arg_parser.parse_args()
+
+
+def main_parametric(args):
+    download_chain_data(bool(args.update_chain_data))
+
+    source = args.source_chain.upper()
+    assert source in ALL_CHAINS, f'Unknown source chain {source}'
+    dest = args.destination_chain.upper()
+    assert dest in ALL_CHAINS, f'Unknown destination chain {dest}'
+
+    amount = float(args.amount)
+    assert amount > 0, f'Amount must be positive, got {amount}'
+
+    private_key = args.private_key
+    assert private_key, 'Private key must be specified'
+    if private_key.lower().startswith('0x'):
+        private_key = private_key[2:]
+
+    source_chain_desc = CHAIN_CONFIG_MAP[source]
+    dest_chain_desc = CHAIN_CONFIG_MAP[dest]
+
+    perform_actions([private_key], amount, source_chain_desc, dest_chain_desc)
+
+
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) > 1:
+        args = read_arguments()
+        main_parametric(args)
+    else:
+        main()
