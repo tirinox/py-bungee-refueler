@@ -155,24 +155,37 @@ def main():
             send_amount = float(amount)
             break
 
-    print(f'Starting send Gas from {dest_chain_desc.name} to {source_chain_desc.name}')
+    private_keys = load_wallets()
     print(f"{amount} {gas_token} will be send from all your addresses")
-    w3 = Web3(Web3.HTTPProvider(source_chain_desc.rpc))
-    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    perform_actions(private_keys, send_amount, source_chain_desc, dest_chain_desc)
 
-    # Loads ABI for contracts
-    with open('ABI/socket.json', 'r', encoding='utf-8-sig') as file:
-        SOCKET_ABI = file.read().strip().replace('\n', '').replace(' ', '')
 
-    global contract_refuel
-    contract_refuel = w3.eth.contract(address=Web3.to_checksum_address(source_chain_desc.contract),
-                                      abi=SOCKET_ABI)
-
+def load_wallets():
     # Loads private_keys
     with open('accounts.txt', encoding='utf-8-sig') as file:
         private_keys = [row.strip() for row in file]
     num_wallets = len(private_keys)
     logger.info(f'Loaded {num_wallets} wallets')
+    return private_keys
+
+
+def perform_actions(private_keys: list,
+                    send_amount: float,
+                    source_chain_desc: ChainConfig,
+                    dest_chain_desc: ChainConfig):
+    print(f'Starting send Gas from {dest_chain_desc.name} to {source_chain_desc.name}')
+
+    w3 = Web3(Web3.HTTPProvider(source_chain_desc.rpc))
+    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    # Loads ABI for contracts
+    with open('ABI/socket.json', 'r', encoding='utf-8-sig') as file:
+        SOCKET_ABI = file.read().strip().replace('\n', '').replace(' ', '')
+    global contract_refuel
+    contract_refuel = w3.eth.contract(address=Web3.to_checksum_address(source_chain_desc.contract),
+                                      abi=SOCKET_ABI)
+
+    if isinstance(private_keys, str):
+        private_keys = [private_keys]
 
     for private_key in private_keys:
         send_tx(w3, send_amount, private_key, source_chain_desc, dest_chain_desc)
